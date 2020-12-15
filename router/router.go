@@ -1,6 +1,9 @@
 package router
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,12 +32,11 @@ func Listen() {
 	r = gin.Default()
 
 	// Web Routes
-	web := WEB{"/"}
-	web.Listen()
+	InitWEB()
 
 	// API Routes
-	api := API{"/api"}
-	api.Listen()
+	InitAPI()
 
-	r.Run(":8080")
+	// Running router
+	r.Run(fmt.Sprintf(":%s", os.Getenv("APP_PORT")))
 }
