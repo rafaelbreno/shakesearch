@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -21,5 +22,9 @@ func (w WEB) Listen() {
 }
 
 func (_ WEB) test(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"aaa": "bbb"})
+	body, err := ioutil.ReadFile("static/index.html")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	c.Data(http.StatusOK, "text/html; charset=utf-8", body)
 }
