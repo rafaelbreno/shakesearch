@@ -15,10 +15,12 @@ func InitWEB() {
 }
 
 func (w WEB) Listen() {
-	apiGroup := r.Group(w.Prefix)
+	webGroup := r.Group(w.Prefix)
 	{
-		apiGroup.GET("/", w.test)
+		webGroup.GET("/", w.test)
 	}
+
+	r.Static("/static", "./static")
 }
 
 func (_ WEB) test(c *gin.Context) {
