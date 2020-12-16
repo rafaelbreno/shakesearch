@@ -3,6 +3,7 @@ package search
 import (
 	"bufio"
 	"log"
+	"math"
 	"os"
 	"regexp"
 	"strings"
@@ -93,9 +94,46 @@ func checkTitles(cont map[string]int, str string) (int, bool) {
 		return v, found
 	}
 
+	if v, found := cont["THE TRAGEDY OF "+str]; found {
+		return v, found
+	}
+
+	strLen := len(str)
+	strByte := []byte(str)
+	var equals int
+
+	for value, key := range cont {
+		equals = 0
+
+		valueLen := len(value)
+		if strLen == valueLen || math.Abs(float64(strLen-valueLen)) <= float64(10) {
+
+			valueByte := []byte(value)
+
+			if strLen >= valueLen {
+				for i, c := range valueByte {
+					if c == strByte[i] {
+						equals++
+					}
+				}
+			} else {
+				for i, c := range strByte {
+					if c == valueByte[i] {
+						equals++
+					}
+				}
+			}
+
+			// If 90% of the strings are equal
+			if float64(equals)/float64(valueLen) > 0.6 {
+				return key, true
+			}
+		}
+
+	}
+
 	return -1, false
 }
-
 func (w *Works) getContentBody() {
 	contents := make(map[string]int, len(w.Contents))
 
