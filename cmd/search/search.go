@@ -43,10 +43,11 @@ func Load(filename string) (*Works, error) {
 }
 
 func (w *Works) SetContents() {
-	w.getContentTitles().GetContentBody()
+	w.getContentTitles()
+	w.getContentBody()
 }
 
-func (w *Works) getContentTitles() *Works {
+func (w *Works) getContentTitles() {
 	// Counter to store the current line in file
 
 	/*
@@ -84,38 +85,50 @@ func (w *Works) getContentTitles() *Works {
 			})
 		}
 	}
-
-	return w
 }
 
-func (w *Works) GetContentBody() {
+func (w *Works) getContentBody() {
+	contents := make(map[string]int, len(w.Contents))
+
+	for key, value := range w.Contents {
+		contents[value.Title] = key
+	}
+
 	i := 0
 	max := len(w.Contents)
 
+	// Itering each line
 	for w.Buf.Scan() {
 
-		str := w.Buf.Text()
+		// Getting current line
+		str := strings.Trim(w.Buf.Text(), " ")
 
-		if str == w.Contents[i].Title {
+		// Only parse non-empty lines
+		if str != "" {
 
-			// First content
-			if i == 0 {
-				w.Contents[i].LineStart = w.CurrentLine
-			} else {
-				// Defining number of the last line from the previous content
-				w.Contents[i-1].LineEnd = w.CurrentLine - 1
-				// Defining the start from the current content
-				w.Contents[i].LineStart = w.CurrentLine
+			// Checking if current line exists in Content List
+			if v, found := contents[str]; found {
+
+				// First content
+				if i == 0 {
+					w.Contents[v].LineStart = w.CurrentLine
+				} else {
+					// Defining number of the last line from the previous content
+					w.Contents[v-1].LineEnd = w.CurrentLine - 1
+					// Defining the start from the current content
+					w.Contents[v].LineStart = w.CurrentLine
+				}
+
+				i++
 			}
 
-			i++
-		}
+			// Stop loop when reaches max number of contents
+			if i == max {
+				break
+			}
 
-		if i == max {
-			break
+			w.CurrentLine++
 		}
-
-		w.CurrentLine++
 	}
 
 	if err := w.Buf.Err(); err != nil {
