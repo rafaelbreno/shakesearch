@@ -16,7 +16,7 @@ func InitAPI() {
 func (a API) Listen() {
 	apiGroup := r.Group(a.Prefix)
 	{
-		apiGroup.GET("/", a.test)
+		apiGroup.POST("/", a.test)
 	}
 }
 
