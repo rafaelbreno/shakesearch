@@ -2,10 +2,9 @@ package router
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
+	"pulley.com/shakesearch/handler"
 )
 
 func InitAPI() {
@@ -16,11 +15,6 @@ func InitAPI() {
 func (a API) Listen() {
 	apiGroup := r.Group(a.Prefix)
 	{
-		apiGroup.POST("/", a.test)
+		apiGroup.POST("/", handler.Search)
 	}
-}
-
-func (_ API) test(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"aaa": "bbb"})
-	return
 }
