@@ -106,15 +106,18 @@ func checkTitles(cont map[string]int, str string) (int, bool) {
 		equals = 0
 
 		valueLen := len(value)
-		if strLen == valueLen || math.Abs(float64(strLen-valueLen)) <= float64(10) {
+		valueByte := []byte(value)
 
-			valueByte := []byte(value)
-
+		if strLen == valueLen || math.Abs(float64(strLen-valueLen)) <= float64(6) {
 			if strLen >= valueLen {
 				for i, c := range valueByte {
 					if c == strByte[i] {
 						equals++
 					}
+				}
+				// If 90% of the strings are equal
+				if float64(equals)/float64(valueLen) > 0.8 {
+					return key, true
 				}
 			} else {
 				for i, c := range strByte {
@@ -122,12 +125,11 @@ func checkTitles(cont map[string]int, str string) (int, bool) {
 						equals++
 					}
 				}
+				if float64(equals)/float64(strLen) > 0.8 {
+					return key, true
+				}
 			}
 
-			// If 90% of the strings are equal
-			if float64(equals)/float64(valueLen) > 0.6 {
-				return key, true
-			}
 		}
 
 	}
