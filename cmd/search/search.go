@@ -2,8 +2,6 @@ package search
 
 import (
 	"bufio"
-	"index/suffixarray"
-	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
@@ -11,11 +9,9 @@ import (
 )
 
 type Works struct {
-	Data         []byte
-	CompleteWork string
-	SuffixArray  *suffixarray.Index
-	Contents     []Content
-	Buf          *bufio.Reader
+	Contents    []Content
+	CurrentLine int
+	Buf         *bufio.Scanner
 }
 
 type Content struct {
@@ -26,27 +22,33 @@ type Content struct {
 
 // Loading File
 func Load(filename string) (*Works, error) {
-	data, err := ioutil.ReadFile(filename)
+	file, err := os.Open("completeworks.txt")
 
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
+
+	defer file.Close()
+
+	buf := bufio.NewScanner(file)
 
 	w := Works{
-		Data:         data,
-		CompleteWork: string(data),
-		SuffixArray:  suffixarray.New(data),
+		Buf:         buf,
+		CurrentLine: 0,
 	}
 
-	w.GetContents()
+	w.SetContents()
 
 	return &w, nil
 }
 
-func openFile() {
-
+func (w *Works) SetContents() {
+	w.getContentTitles().GetContentBody()
 }
-func (w *Works) GetContents() {
+
+func (w *Works) getContentTitles() *Works {
+	// Counter to store the current line in file
+
 	/*
 	 * / {15}[^~]{1,}$/
 	 *
@@ -59,32 +61,23 @@ func (w *Works) GetContents() {
 	**/
 	r := regexp.MustCompile(` {15}[^~]{1,}$`)
 
-	file, err := os.Open("completeworks.txt")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
 	/*
 	 * Scanning the first 130 lines because I'd a look
 	 * into the file, and the contents/summary ended before
 	 * reaching 130
 	**/
 	for i := 0; i < 130; i++ {
+		w.CurrentLine++
+
 		// Scanning the line by line
-		scanner.Scan()
+		w.Buf.Scan()
 
 		// Getting the line string
-		str := scanner.Text()
+		str := w.Buf.Text()
 
 		// Matching the regexp with a line
 		a := r.FindString(str)
 		if a != "" {
-
 			// Appending new content into Content
 			w.Contents = append(w.Contents, Content{
 				Title: strings.Trim(a, " "),
@@ -92,27 +85,44 @@ func (w *Works) GetContents() {
 		}
 	}
 
-	for scanner.Scan() {
-		str := scanner.Text()
+	return w
+}
 
-		if str == "" {
+func (w *Works) GetContentBody() {
+	i := 0
+	max := len(w.Contents)
 
+	for w.Buf.Scan() {
+
+		str := w.Buf.Text()
+
+		if str == w.Contents[i].Title {
+
+			// First content
+			if i == 0 {
+				w.Contents[i].LineStart = w.CurrentLine
+			} else {
+				// Defining number of the last line from the previous content
+				w.Contents[i-1].LineEnd = w.CurrentLine - 1
+				// Defining the start from the current content
+				w.Contents[i].LineStart = w.CurrentLine
+			}
+
+			i++
 		}
+
+		if i == max {
+			break
+		}
+
+		w.CurrentLine++
 	}
 
-	if err := scanner.Err(); err != nil {
+	if err := w.Buf.Err(); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func (w *Works) Search(query string) ([]string, error) {
-	idxs := w.SuffixArray.Lookup([]byte(query), -1)
-
-	results := []string{}
-
-	for _, idx := range idxs {
-		results = append(results, w.CompleteWork[idx:idx])
-	}
-
-	return results, nil
+	return nil, nil
 }
