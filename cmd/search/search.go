@@ -87,6 +87,15 @@ func (w *Works) getContentTitles() {
 	}
 }
 
+func checkTitles(cont map[string]int, str string) (int, bool) {
+
+	if v, found := cont[str]; found {
+		return v, found
+	}
+
+	return -1, false
+}
+
 func (w *Works) getContentBody() {
 	contents := make(map[string]int, len(w.Contents))
 
@@ -102,12 +111,13 @@ func (w *Works) getContentBody() {
 
 		// Getting current line
 		str := strings.Trim(w.Buf.Text(), " ")
+		str = strings.Trim(str, ":")
 
 		// Only parse non-empty lines
 		if str != "" {
 
 			// Checking if current line exists in Content List
-			if v, found := contents[str]; found {
+			if v, found := checkTitles(contents, str); found {
 
 				// First content
 				if i == 0 {
