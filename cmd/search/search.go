@@ -119,6 +119,8 @@ func (w *Works) getContentBody() {
 					w.Contents[v].LineStart = w.CurrentLine
 				}
 
+				delete(contents, str)
+
 				i++
 			}
 
