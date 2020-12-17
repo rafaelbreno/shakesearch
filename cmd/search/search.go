@@ -2,9 +2,7 @@ package search
 
 import (
 	"bufio"
-	"github.com/xrash/smetrics"
 	"log"
-	"math"
 	"os"
 	"regexp"
 	"strings"
@@ -20,6 +18,7 @@ type Content struct {
 	Title     string
 	LineStart int
 	LineEnd   int
+	Body      []string
 }
 
 var currentLine int
@@ -49,6 +48,13 @@ func Load(filename string) (*Works, error) {
 func (w *Works) SetContents() {
 	w.getContentTitles()
 	w.getContentBody()
+	w.getBody()
+}
+
+func (w *Works) getBody() {
+	//if i > 1 {
+	//w.Contents[i-1].Body = append(w.Contents[i-1].Body, w.Buf.Text())
+	//}
 }
 
 func (w *Works) getContentTitles() {
@@ -82,6 +88,7 @@ func (w *Works) getContentTitles() {
 
 		// Matching the regexp with a line
 		a := r.FindString(str)
+
 		if a != "" {
 			// Appending new content into Content
 			w.Contents = append(w.Contents, Content{
@@ -91,67 +98,13 @@ func (w *Works) getContentTitles() {
 	}
 }
 
-func checkEnd(str string) bool {
-	return false
-}
-
 func checkTitles(cont map[string]int, str string) (int, bool, string) {
-
 	if v, found := cont[str]; found {
 		return v, found, str
 	}
 
 	if v, found := cont["THE TRAGEDY OF "+str]; found {
 		return v, found, "THE TRAGEDY OF " + str
-	}
-
-	strLen := len(str)
-	strByte := []byte(str)
-	var equals int
-
-	for value, key := range cont {
-
-		equals = 0
-
-		valueLen := len(value)
-		valueByte := []byte(value)
-
-		if strLen == valueLen ||
-			math.Abs(float64(strLen-valueLen)) > float64(7) ||
-			math.Abs(float64(strLen-valueLen)) < float64(13) {
-			simi := smetrics.JaroWinkler(str, value, 0.7, 4)
-			//if smetrics.WagnerFischer(str, value, 1, 1, 2) < 5 {
-			//return key, true, value
-			//}
-
-			if simi > float64(0.71) {
-				return key, true, value
-			}
-
-		}
-		if strLen == valueLen || math.Abs(float64(strLen-valueLen)) <= float64(6) {
-			if strLen >= valueLen {
-				for i, c := range valueByte {
-					if c == strByte[i] {
-						equals++
-					}
-				}
-				// If 90% of the strings are equal
-				if float64(equals)/float64(valueLen) > 0.8 {
-					return key, true, value
-				}
-			} else {
-				for i, c := range strByte {
-					if c == valueByte[i] {
-						equals++
-					}
-				}
-				if float64(equals)/float64(strLen) > 0.8 {
-					return key, true, value
-				}
-			}
-
-		}
 	}
 
 	return -1, false, ""
@@ -172,40 +125,51 @@ func (w *Works) getContentBody() {
 		currentLine++
 
 		// Getting current line
-		str := strings.Trim(w.Buf.Text(), " ")
+		line := w.Buf.Text()
+		if line != "" {
+			if line[0] == ' ' && i != max {
+				continue
+			}
+		}
+
+		str := strings.Trim(line, " ")
 		str = strings.Trim(str, ":")
+
+		if a := regexp.MustCompile(`[A-Z\s\'\\’;]{1,}$`).FindString(str); a == "" {
+			continue
+		}
 
 		r := regexp.MustCompile(`[^.]{1,}$`)
 
 		// Only parse non-empty lines
-		if a := r.FindString(str); str != "" && a != "" {
+		if a := r.FindString(str); str == "" && a == "" {
+			continue
+		}
 
-			// Conditional to avoid checkTitles()
-			if i != max {
-				// Checking if current line exists in Content List
-				if v, found, key := checkTitles(contents, str); found {
+		// Conditional to avoid checkTitles()
+		if i != max {
+			// Checking if current line exists in Content List
+			if v, found, key := checkTitles(contents, str); found {
 
-					// First content
-					if i == 0 {
-						w.Contents[v].LineStart = currentLine
-					} else {
-						// Defining number of the last line from the previous content
-						w.Contents[v-1].LineEnd = currentLine - 1
-						// Defining the start from the current content
-						w.Contents[v].LineStart = currentLine
-					}
-
-					delete(contents, key)
-
-					i++
+				// First content
+				if i == 0 {
+					w.Contents[v].LineStart = currentLine
+				} else {
+					// Defining number of the last line from the previous content
+					w.Contents[v-1].LineEnd = currentLine - 1
+					// Defining the start from the current content
+					w.Contents[v].LineStart = currentLine
 				}
-			}
-			// Stop loop when reaches max number of contents
-			if str == "FINIS" && i == max {
-				w.Contents[i-1].LineEnd = currentLine
-				break
-			}
 
+				delete(contents, key)
+				i++
+			}
+		}
+
+		// Stop loop when reaches max number of contents
+		if str == "FINIS" && i == max {
+			w.Contents[i-1].LineEnd = currentLine
+			break
 		}
 
 	}
