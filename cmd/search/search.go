@@ -22,6 +22,8 @@ type Content struct {
 	LineEnd   int
 }
 
+var currentLine int
+
 // Loading File
 func Load(filename string) (*Works, error) {
 	file, err := os.Open("completeworks.txt")
@@ -70,7 +72,7 @@ func (w *Works) getContentTitles() {
 	 * reaching 130
 	**/
 	for i := 0; i < 130; i++ {
-		w.CurrentLine++
+		currentLine++
 
 		// Scanning the line by line
 		w.Buf.Scan()
@@ -87,6 +89,10 @@ func (w *Works) getContentTitles() {
 			})
 		}
 	}
+}
+
+func checkEnd(str string) bool {
+	return false
 }
 
 func checkTitles(cont map[string]int, str string) (int, bool, string) {
@@ -114,7 +120,6 @@ func checkTitles(cont map[string]int, str string) (int, bool, string) {
 			math.Abs(float64(strLen-valueLen)) > float64(7) ||
 			math.Abs(float64(strLen-valueLen)) < float64(13) {
 			simi := smetrics.JaroWinkler(str, value, 0.7, 4)
-			log.Println(str, value, simi)
 			//if smetrics.WagnerFischer(str, value, 1, 1, 2) < 5 {
 			//return key, true, value
 			//}
@@ -151,6 +156,7 @@ func checkTitles(cont map[string]int, str string) (int, bool, string) {
 
 	return -1, false, ""
 }
+
 func (w *Works) getContentBody() {
 	contents := make(map[string]int, len(w.Contents))
 
@@ -163,39 +169,45 @@ func (w *Works) getContentBody() {
 
 	// Itering each line
 	for w.Buf.Scan() {
+		currentLine++
 
 		// Getting current line
 		str := strings.Trim(w.Buf.Text(), " ")
 		str = strings.Trim(str, ":")
 
+		r := regexp.MustCompile(`[^.]{1,}$`)
+
 		// Only parse non-empty lines
-		if str != "" {
+		if a := r.FindString(str); str != "" && a != "" {
 
-			// Checking if current line exists in Content List
-			if v, found, key := checkTitles(contents, str); found {
+			// Conditional to avoid checkTitles()
+			if i != max {
+				// Checking if current line exists in Content List
+				if v, found, key := checkTitles(contents, str); found {
 
-				// First content
-				if i == 0 {
-					w.Contents[v].LineStart = w.CurrentLine
-				} else {
-					// Defining number of the last line from the previous content
-					w.Contents[v-1].LineEnd = w.CurrentLine - 1
-					// Defining the start from the current content
-					w.Contents[v].LineStart = w.CurrentLine
+					// First content
+					if i == 0 {
+						w.Contents[v].LineStart = currentLine
+					} else {
+						// Defining number of the last line from the previous content
+						w.Contents[v-1].LineEnd = currentLine - 1
+						// Defining the start from the current content
+						w.Contents[v].LineStart = currentLine
+					}
+
+					delete(contents, key)
+
+					i++
 				}
-
-				delete(contents, key)
-
-				i++
 			}
-
 			// Stop loop when reaches max number of contents
-			if i == max {
+			if str == "FINIS" && i == max {
+				w.Contents[i-1].LineEnd = currentLine
 				break
 			}
 
-			w.CurrentLine++
 		}
+
 	}
 
 	if err := w.Buf.Err(); err != nil {
