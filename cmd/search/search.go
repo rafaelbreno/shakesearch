@@ -2,6 +2,7 @@ package search
 
 import (
 	"bufio"
+	"github.com/xrash/smetrics"
 	"log"
 	"math"
 	"os"
@@ -88,14 +89,14 @@ func (w *Works) getContentTitles() {
 	}
 }
 
-func checkTitles(cont map[string]int, str string) (int, bool) {
+func checkTitles(cont map[string]int, str string) (int, bool, string) {
 
 	if v, found := cont[str]; found {
-		return v, found
+		return v, found, str
 	}
 
 	if v, found := cont["THE TRAGEDY OF "+str]; found {
-		return v, found
+		return v, found, "THE TRAGEDY OF " + str
 	}
 
 	strLen := len(str)
@@ -103,11 +104,26 @@ func checkTitles(cont map[string]int, str string) (int, bool) {
 	var equals int
 
 	for value, key := range cont {
+
 		equals = 0
 
 		valueLen := len(value)
 		valueByte := []byte(value)
 
+		if strLen == valueLen ||
+			math.Abs(float64(strLen-valueLen)) > float64(7) ||
+			math.Abs(float64(strLen-valueLen)) < float64(13) {
+			simi := smetrics.JaroWinkler(str, value, 0.7, 4)
+			log.Println(str, value, simi)
+			//if smetrics.WagnerFischer(str, value, 1, 1, 2) < 5 {
+			//return key, true, value
+			//}
+
+			if simi > float64(0.71) {
+				return key, true, value
+			}
+
+		}
 		if strLen == valueLen || math.Abs(float64(strLen-valueLen)) <= float64(6) {
 			if strLen >= valueLen {
 				for i, c := range valueByte {
@@ -117,7 +133,7 @@ func checkTitles(cont map[string]int, str string) (int, bool) {
 				}
 				// If 90% of the strings are equal
 				if float64(equals)/float64(valueLen) > 0.8 {
-					return key, true
+					return key, true, value
 				}
 			} else {
 				for i, c := range strByte {
@@ -126,15 +142,14 @@ func checkTitles(cont map[string]int, str string) (int, bool) {
 					}
 				}
 				if float64(equals)/float64(strLen) > 0.8 {
-					return key, true
+					return key, true, value
 				}
 			}
 
 		}
-
 	}
 
-	return -1, false
+	return -1, false, ""
 }
 func (w *Works) getContentBody() {
 	contents := make(map[string]int, len(w.Contents))
@@ -157,7 +172,7 @@ func (w *Works) getContentBody() {
 		if str != "" {
 
 			// Checking if current line exists in Content List
-			if v, found := checkTitles(contents, str); found {
+			if v, found, key := checkTitles(contents, str); found {
 
 				// First content
 				if i == 0 {
@@ -169,7 +184,7 @@ func (w *Works) getContentBody() {
 					w.Contents[v].LineStart = w.CurrentLine
 				}
 
-				delete(contents, str)
+				delete(contents, key)
 
 				i++
 			}
