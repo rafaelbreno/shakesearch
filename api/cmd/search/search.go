@@ -52,9 +52,7 @@ func (w *Works) SetContents() {
 }
 
 func (w *Works) getBody() {
-	//if i > 1 {
-	//w.Contents[i-1].Body = append(w.Contents[i-1].Body, w.Buf.Text())
-	//}
+
 }
 
 func (w *Works) getContentTitles() {
@@ -87,9 +85,7 @@ func (w *Works) getContentTitles() {
 		str := w.Buf.Text()
 
 		// Matching the regexp with a line
-		a := r.FindString(str)
-
-		if a != "" {
+		if a := r.FindString(str); a != "" {
 			// Appending new content into Content
 			w.Contents = append(w.Contents, Content{
 				Title: strings.Trim(a, " "),
@@ -126,6 +122,12 @@ func (w *Works) getContentBody() {
 
 		// Getting current line
 		line := w.Buf.Text()
+
+		// Saving the body
+		if w.Contents[0].LineStart != 0 {
+			w.Contents[i-1].Body = append(w.Contents[i-1].Body, line)
+		}
+
 		if line != "" {
 			if line[0] == ' ' && i != max {
 				continue
@@ -139,12 +141,12 @@ func (w *Works) getContentBody() {
 			continue
 		}
 
-		r := regexp.MustCompile(`[^.]{1,}$`)
-
 		// Only parse non-empty lines
-		if a := r.FindString(str); str == "" && a == "" {
+		if a := regexp.MustCompile(`[^.]{1,}$`).FindString(str); str == "" && a == "" {
 			continue
 		}
+
+		// Appending each line to the content
 
 		// Conditional to avoid checkTitles()
 		if i != max {
