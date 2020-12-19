@@ -24,14 +24,24 @@
                     </button>
                 </div>
             </div>
-            <img src="../assets/svg/sketch.svg" alt="sketch"/>
+            <img src="../assets/svg/sketch.svg"
+
+                 alt="sketch"/>
         </div>
+        <transition name="shakes-fade">
+            <Shakespeare/>
+        </transition>
     </div>
 </template>
 
 <script>
+import Shakespeare from './Shakespeare.vue'
+
 export default {
     name: 'SearchBar',
+    components: {
+        Shakespeare,
+    },
     data: () => ({
       form: {
         keywords: "",
@@ -42,7 +52,6 @@ export default {
             let data = {
                 query: this.form.keywords
             }
-
             this.$postData("", "POST", data)
             .then(r => {
                 console.log(r)
