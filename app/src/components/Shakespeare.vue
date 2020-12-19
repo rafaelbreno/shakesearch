@@ -12,10 +12,10 @@ export default {
 </script>
 
 <style scoped>
-.bottom-x {
-bottom: 0% !important;
-}
-.end-x {
-right: -3% !important;
-}
+    .bottom-x {
+        bottom: 0% !important;
+    }
+    .end-x {
+        right: -3% !important;
+    }
 </style>
