@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,6 +31,9 @@ var r *gin.Engine
 func Listen() {
 	// Defining r global variable
 	r = gin.Default()
+
+	// Allowing CORS
+	r.Use(cors.Default())
 
 	// Web Routes
 	InitWEB()
