@@ -8,9 +8,20 @@
                          alt="sketch"/>
                 </div>
                 <div class="col">
-                <input type="text" 
-                       class="shake-search-input" 
-                       placeholder="What art thee looking f'r?"/>
+                    <input type="text"
+                           name="keywords"
+                           id="keywords"
+                           class="shake-search-input"
+                           placeholder="What art thee looking f'r?"
+                           v-model="form.keywords"/>
+                </div>
+                <div class="col-1">
+                    <button 
+                        id="search-button" 
+                        class="shake-button pb-1 me-3"
+                        v-on:click="searchArt">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
             <img src="../assets/svg/sketch.svg" alt="sketch"/>
@@ -30,6 +41,17 @@ export default {
 
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
     /*font-family: 'Playfair Display', serif;*/
+
+    .shake-button {
+        background-color: rgba(0, 0, 0, 0);
+        border: 0;
+        outline: none;
+
+        font-size: 2rem;
+        color: #9B9186;
+
+        z-index: 999;
+    }
 
     .start-49 {
         left: 49% !important;
