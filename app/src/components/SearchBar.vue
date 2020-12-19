@@ -48,7 +48,7 @@ export default {
     .shake-search-input {
         background-color: rgba(0, 0, 0, 0);
         border: 0; 
-        color: black; 
+        color: #50493E; 
         font-family: 'Courier Prime', monospace;
         font-size: 2rem;
     }
