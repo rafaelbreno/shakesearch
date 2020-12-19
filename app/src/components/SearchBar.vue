@@ -31,7 +31,26 @@
 
 <script>
 export default {
-    name: 'SearchBar' 
+    name: 'SearchBar',
+    data: () => ({
+      form: {
+        keywords: "",
+      },
+    }),
+    methods: {
+        searchArt() {
+            let data = {
+                query: this.form.keywords
+            }
+
+            this.$postData("", "POST", data)
+            .then(r => {
+                console.log(r)
+            }).catch(e => {
+                console.log(e)
+            })
+        },
+    },
 }
 </script>
 
