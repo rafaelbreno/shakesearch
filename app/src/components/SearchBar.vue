@@ -38,22 +38,33 @@
         <transition name="shake-fade">
             <Shakespeare v-if="show_shake"/>
         </transition>
+        <transition name="book-fade">
+            <Book v-bind:artContents="content.body" 
+                  v-bind:artTitle="content.title" 
+                  v-if="!show_shake" />
+        </transition>
     </div>
 </template>
 
 <script>
 import Shakespeare from './Shakespeare.vue'
+import Book from './_partials/Book.vue'
 
 export default {
     name: 'SearchBar',
     components: {
         Shakespeare,
+        Book
     },
     data: () => ({
-      show_shake: true,
-      form: {
-        keywords: "",
-      },
+        show_shake: true,
+        form: {
+            keywords: "",
+        },
+        content: {
+            title: "",
+            body: [],
+        },
     }),
     methods: {
         searchArt() {
@@ -63,6 +74,8 @@ export default {
             this.$postData("", "POST", data)
             .then(r => {
                 this.show_shake = !this.show_shake
+                this.content.title = r.contents[0].Title
+                this.content.body = r.contents[0].Body
                 console.log(r)
             }).catch(e => {
                 this.show_shake = !this.show_shake
@@ -122,6 +135,18 @@ export default {
     .shake-fade-enter, .shake-fade-leave-to
     /* .slide-fade-leave-active below version 2.1.8 */ {
         transform: translateX(80%);
+        opacity: 0;
+    }
+
+    .book-fade-enter-active {
+        transition: all .8s ease;
+    }
+    .book-fade-leave-active {
+        transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+    }
+    .book-fade-enter, .book-fade-leave-to
+    /* .slide-fade-leave-active below version 2.1.8 */ {
+        transform: translateY(80%);
         opacity: 0;
     }
 
