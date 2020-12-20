@@ -9,7 +9,7 @@ import '@fortawesome/fontawesome-free/js/all.js'
 Vue.config.productionTip = false
 
 Vue.prototype.$postData = async (url = '', method = '',  data = {}) => {
-    const response = await fetch(`http://localhost:8200/api/${url}`, {
+    const response = await fetch(`http://localhost:8900/api/${url}`, {
         method: method,
         data: data,
         mode: 'cors',

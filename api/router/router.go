@@ -2,7 +2,6 @@ package router
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -42,5 +41,5 @@ func Listen() {
 	InitAPI()
 
 	// Running router
-	r.Run(fmt.Sprintf(":%s", os.Getenv("APP_PORT")))
+	r.Run(fmt.Sprintf(":%s", "80"))
 }

@@ -12,7 +12,7 @@ func Init() {
 }
 
 func setOS() {
-	if err := godotenv.Load("../.env"); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		panic(err)
 	}
 }
