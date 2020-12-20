@@ -64,11 +64,6 @@ func Load(filename string) (*Works, error) {
 func (w *Works) SetContents() {
 	w.getContentTitles()
 	w.getContentBody()
-	w.getBody()
-}
-
-func (w *Works) getBody() {
-
 }
 
 func (w *Works) getContentTitles() {
@@ -177,6 +172,8 @@ func (w *Works) getContentBody() {
 					w.Contents[v-1].LineEnd = currentLine - 1
 					// Defining the start from the current content
 					w.Contents[v].LineStart = currentLine
+
+					w.Contents[i-1].Body = w.Contents[i-1].Body[:len(w.Contents[i-1].Body)-1]
 				}
 
 				delete(contents, key)
