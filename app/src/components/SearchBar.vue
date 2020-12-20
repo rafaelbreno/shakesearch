@@ -13,6 +13,7 @@
                            id="keywords"
                            class="shake-search-input"
                            placeholder="What art thee looking f'r?"
+                           v-on:focus="resetSearch"
                            v-model="form.keywords"/>
                 </div>
                 <div class="col-1">
@@ -74,7 +75,11 @@ export default {
             this.$postData("", "POST", data)
             .then(r => {
                 console.log(r)
+
+                document.getElementById("keywords").blur()
+
                 this.show_shake = !this.show_shake
+
                 this.content.title = r.content.Title
                 this.content.body = r.content.Body
                 console.log(r)
@@ -83,6 +88,13 @@ export default {
                 console.log(e)
             })
         },
+        resetSearch() {
+            if (!this.show_shake) {
+               this.show_shake = !this.show_shake 
+               this.content.title = null
+               this.content.body = null
+            }
+        }
     },
 }
 </script>
