@@ -73,9 +73,10 @@ export default {
             }
             this.$postData("", "POST", data)
             .then(r => {
+                console.log(r)
                 this.show_shake = !this.show_shake
-                this.content.title = r.contents[0].Title
-                this.content.body = r.contents[0].Body
+                this.content.title = r.content.Title
+                this.content.body = r.content.Body
                 console.log(r)
             }).catch(e => {
                 this.show_shake = !this.show_shake
