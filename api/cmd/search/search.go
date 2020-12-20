@@ -2,6 +2,8 @@ package search
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -22,6 +24,20 @@ type Content struct {
 }
 
 var currentLine int
+
+func (w *Works) GetContentByKeyword(key string) (Content, error) {
+	for i := range w.Contents {
+		if strings.Contains(strings.ToLower(w.Contents[i].Title), strings.ToLower(key)) {
+			return w.Contents[i], nil
+		}
+		for _, value := range strings.Split(key, " ") {
+			if strings.Contains(strings.ToLower(w.Contents[i].Title), strings.ToLower(value)) {
+				return w.Contents[i], nil
+			}
+		}
+	}
+	return Content{}, errors.New(fmt.Sprintf(`Not found any: %s`, key))
+}
 
 // Loading File
 func Load(filename string) (*Works, error) {
@@ -179,8 +195,4 @@ func (w *Works) getContentBody() {
 	if err := w.Buf.Err(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func (w *Works) Search(query string) ([]string, error) {
-	return nil, nil
 }
