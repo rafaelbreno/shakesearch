@@ -74,8 +74,6 @@ export default {
             }
             this.$postData("", "POST", data)
             .then(r => {
-                console.log(r)
-
                 document.getElementById("keywords").blur()
 
                 this.show_shake = !this.show_shake
