@@ -1,11 +1,9 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-light bg-transparent fixed-top">
         <div class="container-fluid">
-            <span href="#" 
-               class="navbar-brand shake-brand px-2 mt-1" 
-               disabled>
+            <div class=" shake-brand px-2 mt-1">
                 Shakesearch
-            </span>
+            </div>
         </div>
     </nav>    
 </template>
@@ -23,7 +21,7 @@ export default {
         font-family: 'Amethysta', serif;
         font-weight: 400;
         font-size: 1.1rem;
-        opacity: 40%;
+        color: rgba(0, 0, 0, 0.6) !important;
     }
 
 </style>
