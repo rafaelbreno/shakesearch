@@ -23,3 +23,21 @@ current state, can be deployed easily on Heroku's free tier.
 
 If you are stronger on the front-end, complete the react-prompt.md in this
 folder.
+
+## Local Deploy
+- > $ cp .env.example .env
+- > $ sudo ./start
+- > $ 2
+- Then access: ```http://localhost:8200```
+
+## Possible Improvements
+- Back-end
+    - Improve text parsing
+    - Implement Elasticsearch to improve search performance
+- Front-end
+    - Fix some timing issues with components Animation
+    - Implement Pagination
+
+## Observations
+- I'm not stronger on the front-end, I just was curious about VueJs and spent 2 days on the front-end for funsies
+- I really prefer back-end dev
